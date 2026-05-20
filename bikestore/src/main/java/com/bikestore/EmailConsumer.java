@@ -63,7 +63,7 @@ public class EmailConsumer {
         });
         
         // Asigna un nombre al hilo para identificarlo en los logs.
-        workerThread.setName("EmailWorker-Thread");
+        workerThread.setName("EmailConsumer-Thread");
         // Inicia el hilo para que EmailWorker empiece a escuchar mensajes.
         workerThread.start();
     }

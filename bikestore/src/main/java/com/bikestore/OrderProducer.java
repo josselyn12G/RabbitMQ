@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -30,29 +31,48 @@ public class OrderProducer {
         order.put("producto", request.get("producto"));
         // Agrega el total del pedido
         order.put("total", request.get("total"));
-
         // Define el estado inicial del pago
         order.put("paymentStatus", "PENDING");
 
-        // Abre conexión y canal con RabbitMQ
-        try (Connection connection = RabbitConfig.getConnection();
-             // Crea un canal para enviar mensajes
-             Channel channel = connection.createChannel()) {
-            // Configura exchanges y colas
-            RabbitConfig.setup(channel);
-            // channel.basicPublish publica un mensaje en RabbitMQ
-            channel.basicPublish(
-                    // Exchange donde se enviará el mensaje
-                    RabbitConfig.EXCHANGE,
-                    // Routing key usada para dirigir el mensaje
-                    "order.created",
-                    // Propiedades adicionales del mensaje
-                    null,
-                    // Convierte el JSON a bytes UTF-8
-                    order.toString().getBytes(StandardCharsets.UTF_8)
-            );
-            // Registra un log indicando que el pedido fue publicado
-            RabbitConfig.log(pedidoId, "OrderProducer publicó el pedido en RabbitMQ");
+        // Permite capturar errores que ocurran dentro del thread
+        AtomicReference<Exception> error = new AtomicReference<>();
+
+        // Crea un thread independiente para publicar el pedido en RabbitMQ
+        Thread producerThread = new Thread(() -> {
+            try (Connection connection = RabbitConfig.getConnection();
+                 Channel channel = connection.createChannel()) {
+
+                // Configura exchanges y colas
+                RabbitConfig.setup(channel);
+
+                // Publica el mensaje JSON en RabbitMQ
+                channel.basicPublish(
+                        RabbitConfig.EXCHANGE,
+                        "order.created",
+                        null,
+                        order.toString().getBytes(StandardCharsets.UTF_8)
+                );
+
+                // Registra un log indicando que el pedido fue publicado
+                RabbitConfig.log(pedidoId, "OrderProducer publicó el pedido en RabbitMQ");
+
+            } catch (Exception e) {
+                error.set(e);
+            }
+        });
+
+        // Asigna un nombre al thread para identificarlo en consola
+        producerThread.setName("OrderProducer-Thread");
+
+        // Inicia el thread
+        producerThread.start();
+
+        // Espera a que termine la publicación antes de responder al cliente
+        producerThread.join();
+
+        // Si hubo error dentro del thread, se lanza para que Spring Boot lo muestre
+        if (error.get() != null) {
+            throw error.get();
         }
 
         // Crea el mapa de respuesta para el cliente

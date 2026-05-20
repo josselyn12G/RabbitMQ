@@ -14,12 +14,10 @@ public class PaymentConsumer {
     private static final int MAX_RETRIES = 3;
     // Objeto Random para simular si el pago falla o se aprueba de forma aleatoria.
     private static final Random random = new Random();
-
-
     // Este método se ejecuta automáticamente cuando Spring Boot termina de crear el componente.
     @PostConstruct
     public void startWorker() {
-        // Se crea un hilo independiente para que PaymentWorker escuche mensajes sin bloquear la aplicación web.
+        // Se crea un hilo independiente para que PaymentConsumer escuche mensajes sin bloquear la aplicación web.
         Thread workerThread = new Thread(() -> {
             try {
                 // Crea la conexión con RabbitMQ usando la configuración centralizada en RabbitConfig.
@@ -38,8 +36,8 @@ public class PaymentConsumer {
                     String pedidoId = order.getString("pedidoId");
                     // Obtiene el número de intentos realizados desde los headers del mensaje.
                     int retryCount = getRetryCount(delivery);
-                    // Registra en consola que PaymentWorker recibió el pedido e indica el intento actual.
-                    RabbitConfig.log(pedidoId, "PaymentWorker recibió pedido. Intento: " + (retryCount + 1));
+                    // Registra en consola que PaymentConsumer recibió el pedido e indica el intento actual.
+                    RabbitConfig.log(pedidoId, "PaymentConsumer recibió pedido. Intento: " + (retryCount + 1));
                     // Simula el resultado del pago con 50 % de probabilidad de fallo y 50 % de aprobación.
                     boolean paymentFailed = random.nextBoolean();
                     // Si el pago falla, se ejecuta la lógica de reintento o envío a DLQ.
@@ -91,16 +89,16 @@ public class PaymentConsumer {
                 };
                 // Indica a RabbitMQ que esta clase consumirá mensajes desde la cola principal de pedidos.
                 channel.basicConsume(RabbitConfig.ORDER_QUEUE, false, deliverCallback, consumerTag -> {});
-                // Mensaje informativo para saber que el worker quedó escuchando pedidos.
-                System.out.println("PaymentWorker escuchando mensajes...");
+                // Mensaje informativo para saber que el consumer quedó escuchando pedidos.
+                System.out.println("PaymentConsumer escuchando mensajes...");
             } catch (Exception e) {
                 // Imprime cualquier error que ocurra durante la conexión o procesamiento de mensajes.
                 e.printStackTrace();
             }
         });
         // Asigna un nombre al hilo para que aparezca claramente en los logs.
-        workerThread.setName("PaymentWorker-Thread");
-        // Inicia el hilo para que PaymentWorker empiece a escuchar mensajes.
+        workerThread.setName("PaymentConsumer-Thread");
+        // Inicia el hilo para que PaymentConsumer empiece a escuchar mensajes.
         workerThread.start();
     }
     // Método auxiliar que obtiene el número de reintentos desde los headers del mensaje.
