@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>BikeStore Async v1.0</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="background">
+    <div class="card">
+        <div class="badge">Arquitectura Asíncrona</div>
+
+        <h1>BikeStore Async v1.0</h1>
+        <p class="subtitle">
+            Simulación de pedidos con RabbitMQ, pagos asíncronos, reintentos y Dead-Letter Queue.
+        </p>
+
+        <form id="orderForm">
+            <label>Nombre del cliente</label>
+            <input type="text" id="clienteNombre" value="Paola Ganan" required>
+
+            <label>Email</label>
+            <input type="email" id="clienteEmail" value="cliente@bikestore.com" required>
+
+            <label>Producto</label>
+            <select id="producto">
+                <option>Bicicleta Montaña X1</option>
+                <option>Bicicleta Ruta Pro</option>
+                <option>Casco Urbano Premium</option>
+                <option>Kit Luces LED</option>
+            </select>
+
+            <label>Total</label>
+            <input type="number" id="total" value="850" required>
+
+            <button type="submit">Confirmar pedido</button>
+        </form>
+
+        <div id="result" class="result hidden"></div>
+
+        <div class="flow">
+            <div>OrderProducer</div>
+            <span>→</span>
+            <div>RabbitMQ</div>
+            <span>→</span>
+            <div>PaymentWorker</div>
+            <span>→</span>
+            <div>EmailWorker</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("orderForm");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const order = {
+            clienteNombre: document.getElementById("clienteNombre").value,
+            clienteEmail: document.getElementById("clienteEmail").value,
+            producto: document.getElementById("producto").value,
+            total: Number(document.getElementById("total").value)
+        };
+
+        result.classList.remove("hidden");
+        result.innerHTML = "Enviando pedido a RabbitMQ...";
+
+        try {
+            const response = await fetch("/api/orders", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(order)
+            });
+
+            const data = await response.json();
+
+            result.innerHTML = `
+                <strong>Pedido enviado correctamente</strong><br>
+                Pedido ID: ${data.pedidoId}<br>
+                Estado inicial: ${data.estado}<br>
+                Revisa la consola de Spring Boot para ver PaymentWorker y EmailWorker.
+            `;
+
+        } catch (error) {
+            result.innerHTML = "Error al enviar el pedido.";
+        }
+    });
+</script>
+
+</body>
+</html>

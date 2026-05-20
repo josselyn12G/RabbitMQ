@@ -1,0 +1,5 @@
+com\bikestore\EmailWorker.class
+com\bikestore\App.class
+com\bikestore\PaymentWorker.class
+com\bikestore\RabbitConfig.class
+com\bikestore\OrderController.class

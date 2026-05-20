@@ -1,0 +1,130 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a, #1e3a8a, #9333ea);
+}
+
+.background {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.card {
+    width: 100%;
+    max-width: 560px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 28px;
+    padding: 36px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+.badge {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 14px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 34px;
+    color: #0f172a;
+}
+
+.subtitle {
+    color: #475569;
+    line-height: 1.5;
+    margin-bottom: 28px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+label {
+    font-weight: bold;
+    color: #334155;
+    margin-top: 6px;
+}
+
+input, select {
+    padding: 13px;
+    border-radius: 14px;
+    border: 1px solid #cbd5e1;
+    font-size: 15px;
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+button {
+    margin-top: 18px;
+    padding: 15px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
+}
+
+.result {
+    margin-top: 22px;
+    padding: 16px;
+    border-radius: 16px;
+    background: #ecfdf5;
+    color: #065f46;
+    line-height: 1.6;
+    border: 1px solid #bbf7d0;
+}
+
+.hidden {
+    display: none;
+}
+
+.flow {
+    margin-top: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+    color: #334155;
+}
+
+.flow div {
+    background: #f1f5f9;
+    padding: 8px;
+    border-radius: 12px;
+    text-align: center;
+    flex: 1;
+}
+
+.flow span {
+    color: #64748b;
+    font-weight: bold;
+}
