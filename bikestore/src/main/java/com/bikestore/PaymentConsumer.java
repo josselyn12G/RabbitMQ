@@ -28,6 +28,7 @@ public class PaymentConsumer {
                 RabbitConfig.setup(channel);
                 // Define la lógica que se ejecutará cada vez que llegue un mensaje a la cola de pedidos.
                 DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+                    Thread.currentThread().setName("PaymentConsumer-Thread");
                     // Convierte el cuerpo del mensaje recibido desde bytes a texto JSON.
                     String body = new String(delivery.getBody(), StandardCharsets.UTF_8);
                     // Convierte el texto JSON en un objeto JSONObject para poder leer sus datos.
